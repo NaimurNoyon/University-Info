@@ -121,7 +121,24 @@ class _WebViewExampleState extends State<WebViewExample> {
               ],
             ),
             const SizedBox(height: 12,),
-            const Text('Webview is loading....')
+            const Text(
+                'Webview is loading....',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 12,),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                textAlign: TextAlign.center,
+                'NB : If you are facing issue in loading webview, it can a internal issue of this website. To make sure about it you can copy the web link and can browse on your device browser.',
+                style: TextStyle(
+                  fontSize: 10,
+                ),
+              ),
+            ),
           ],
         ),
       )
