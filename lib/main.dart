@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:university_info/screens/splash_screen.dart';
 
 import 'controllers/connectivity.dart';
+import 'controllers/data_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +19,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Get.put(ConnectivityController());
     return GetMaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'University',

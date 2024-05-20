@@ -22,22 +22,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   InterstitialAd? _interstitialAd;
   int _numInterstitialLoadAttempts = 0;
   int maxFailedLoadAttempts = 3;
 
-/*  static final AdRequest request = const AdRequest(
-    keywords: <String>['foo', 'bar'],
-    contentUrl: 'http://foo.com/bar.html',
-    nonPersonalizedAds: true,
-  );*/
-
   void _createInterstitialAd() {
     InterstitialAd.load(
         adUnitId: Platform.isAndroid
-            ? 'ca-app-pub-3940256099942544/1033173712'
-            : 'ca-app-pub-7319269804560504/3520838807',
+            ? 'ca-app-pub-1204491560300073/7305584184'
+            : 'ca-app-pub-1204491560300073/7305584184',
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
@@ -80,23 +73,56 @@ class _HomeScreenState extends State<HomeScreen> {
     _interstitialAd = null;
   }
 
+  BannerAd? bannerAd;
+
+  loadBannerAd() {
+    bannerAd = BannerAd(
+      adUnitId: 'ca-app-pub-1204491560300073/6506280479',
+      // replace with your ad unit ID
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          print("Banner ad loaded successfully");
+        },
+        onAdFailedToLoad: (ad, error) {
+          print("Failed to load banner ad: $error");
+          bannerAd!.dispose();
+          bannerAd = null;
+        },
+      ),
+    );
+
+    bannerAd!.load();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _createInterstitialAd();
+    loadBannerAd();
   }
+
+  final DataController controller = Get.put(DataController());
+  final ConnectivityController connectivityController = Get.put(ConnectivityController());
 
   @override
   Widget build(BuildContext context) {
-    final DataController controller = Get.put(DataController());
-    final ConnectivityController connectivityController = Get.find();
     return Obx(() {
-      if (connectivityController.connectionStatus.value == ConnectivityResult.none) {
+      if (connectivityController.connectionStatus.value ==
+          ConnectivityResult.none) {
         return const NoInternetPage();
       } else {
         return GetBuilder<DataController>(builder: (dataController) {
           return Scaffold(
+            bottomNavigationBar: bannerAd != null
+                ? Container(
+                    width: double.maxFinite,
+                    height: 80,
+                    child: AdWidget(ad: bannerAd!),
+                  )
+                : SizedBox(),
             body: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -104,13 +130,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     width: double.maxFinite,
                     height: 110,
-                    decoration: const BoxDecoration(
-                        color: AppColors.colorPrimary
-                    ),
+                    decoration:
+                        const BoxDecoration(color: AppColors.colorPrimary),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 24,),
+                        const SizedBox(
+                          height: 24,
+                        ),
                         const Text(
                           "Universities",
                           style: TextStyle(
@@ -147,7 +174,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   //isCollapsed: true,
                                   contentPadding: EdgeInsets.all(10),
                                   //labelText: 'Search',
-                                  floatingLabelAlignment: FloatingLabelAlignment.center,
+                                  floatingLabelAlignment:
+                                      FloatingLabelAlignment.center,
                                   hoverColor: Colors.red,
                                   focusColor: Colors.red,
                                   hintText: "Search",
@@ -168,21 +196,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               controller.iconUp
                                   ? const Icon(
-                                Icons.arrow_drop_up,
-                                color: Colors.white,
-                                size: 22,
-                              )
+                                      Icons.arrow_drop_up,
+                                      color: Colors.white,
+                                      size: 22,
+                                    )
                                   : const Icon(
-                                Icons.arrow_drop_down,
-                                color: AppColors.colorSecondary,
-                                size: 22,
-                              ),
+                                      Icons.arrow_drop_down,
+                                      color: AppColors.colorSecondary,
+                                      size: 22,
+                                    ),
                               Text(
                                 dataController.countryName,
                                 style: TextStyle(
                                     color: AppColors.colorSecondary,
-                                    fontSize: 14
-                                ),
+                                    fontSize: 14),
                               )
                             ],
                           ),
@@ -190,66 +217,76 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  controller.isLoading? const Expanded(child: ShimmerLoading()):
-                  Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: controller.universities.length,
-                      itemBuilder: (context, index) {
-                        final university = controller.universities[index];
-                        return ListTile(
-                          leading: SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: Image.asset('assets/images/university_icon.png'),
-                          ),
-                          title: Text(
-                            university.name,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                          subtitle: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  _showInterstitialAd();
-                                  Get.to(WebViewExample(
-                                    webUrl: convertToHttps(university.webPages[0]),
-                                  ));
-                                },
-                                child: SizedBox(
-                                  width: 170,
-                                  child: Text(
-                                    university.webPages[0],
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: Colors.blue),
+                  controller.isLoading
+                      ? const Expanded(child: ShimmerLoading())
+                      : Expanded(
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: controller.universities.length,
+                            itemBuilder: (context, index) {
+                              final university = controller.universities[index];
+                              return ListTile(
+                                leading: SizedBox(
+                                  height: 40,
+                                  width: 40,
+                                  child: Image.asset(
+                                      'assets/images/university_icon.png'),
+                                ),
+                                title: Text(
+                                  university.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 16,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              GestureDetector(
-                                onTap: () async{
-                                  await Clipboard.setData(ClipboardData(text: university.webPages[0]));
-                                  SnackBarMessage.snackBarMessage("Text Copied!");
-                                },
-                                child: const Icon(
-                                  Icons.copy_rounded,
-                                  size: 14,
+                                subtitle: Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () async {
+                                        var count = await dataController
+                                            .increaseTotalNoOfPressed();
+                                        if (count % 4 == 0) {
+                                          _showInterstitialAd();
+                                        }
+                                        Get.to(WebViewExample(
+                                          webUrl: convertToHttps(
+                                              university.webPages[0]),
+                                        ));
+                                      },
+                                      child: SizedBox(
+                                        width: 170,
+                                        child: Text(
+                                          university.webPages[0],
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                              color: Colors.blue,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: Colors.blue),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await Clipboard.setData(ClipboardData(
+                                            text: university.webPages[0]));
+                                        SnackBarMessage.snackBarMessage(
+                                            "Text Copied!");
+                                      },
+                                      child: const Icon(
+                                        Icons.copy_rounded,
+                                        size: 14,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                              )
-                            ],
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-                  ),
+                        ),
                 ],
               ),
             ),

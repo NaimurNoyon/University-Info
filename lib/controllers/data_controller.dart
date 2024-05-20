@@ -54,4 +54,13 @@ class DataController extends GetxController{
       iconUp = bool;
       update();
   }
+
+
+  //Limiting industrial ads
+  int totalNoOfPressed = 0;
+
+  Future<int> increaseTotalNoOfPressed() async{
+    totalNoOfPressed = totalNoOfPressed + 1;
+    return totalNoOfPressed;
+  }
 }
