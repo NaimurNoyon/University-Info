@@ -117,12 +117,12 @@ class _HomeScreenState extends State<HomeScreen> {
         return GetBuilder<DataController>(builder: (dataController) {
           return Scaffold(
             bottomNavigationBar: bannerAd != null
-                ? Container(
+                ? SizedBox(
                     width: double.maxFinite,
                     height: 80,
                     child: AdWidget(ad: bannerAd!),
                   )
-                : SizedBox(),
+                : const SizedBox(),
             body: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                               Text(
                                 dataController.countryName,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: AppColors.colorSecondary,
                                     fontSize: 14),
                               )
@@ -219,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   controller.isLoading
                       ? const Expanded(child: ShimmerLoading())
-                      : Expanded(
+                      : controller.universities.isNotEmpty? Expanded(
                           child: ListView.builder(
                             padding: EdgeInsets.zero,
                             itemCount: controller.universities.length,
@@ -286,7 +286,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             },
                           ),
-                        ),
+                        )
+                      : const Expanded(
+                              child: Center(
+                                child: SizedBox(
+                                  width: 200,
+                                    child: Text(
+                                        "No Registered University Found For This Country!!",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14
+                                      ),
+                                    ),
+                                ),
+                              ),
+                            )
                 ],
               ),
             ),
